@@ -35,3 +35,16 @@ We can make our analysis easier with the following rules:
 * Testing a specific variable (`svgLength`) at the end of execution is easier.
 * Checking whether a `for` loop is included in the code is not hard either, using any JavaScript parser library.
 * Checking some other simple lexical statistics, that we know by experience are typical ways a student might produce ugly code, such as the number of functions, is also straightforward.
+
+
+## Tools
+
+Currently using [Sandcastle](https://github.com/bcoe/sandcastle) for running JS in a sandboxed environment, and [Esprima](http://esprima.org/) for to parse the JS code for static analysis.
+
+We could probably better use [JSHint](https://jshint.com/docs/api/) for the static part.
+
+What's up with [Aether](https://github.com/codecombat/aether)?
+
+Way more than we need, but one of the thing it does is gather all functions: [escomplex](https://github.com/escomplex/escomplex).
+
+[more](https://github.com/mre/awesome-static-analysis#javascript)
