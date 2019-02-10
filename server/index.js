@@ -1,10 +1,12 @@
 
+const fs = require("fs");
+
 // for dynamic analysis
 const SandCastle = require('sandcastle').SandCastle;
 
 // for static analysis
-const esprima = require('esprima');
-const performStaticAnalysis = require("./perform-static-analysis.js");
+const { parseScript } = require("esprima");
+const { summarize } = require("../lib/analyze.js");
 
 // for the server itself
 const express = require('express');
@@ -24,7 +26,7 @@ app.post('/', (req, res) => {
 
   let ast;
   try {
-    ast = esprima.parse(sourceCode);
+    ast = parseScript(sourceCode);
   } catch (e) {
     // error parsing the code
     res.json({
@@ -34,24 +36,24 @@ app.post('/', (req, res) => {
     return;
   }
 
+  let staticAnalysis = summarize(ast);
+
   const sandcastle = new SandCastle();
   const script = sandcastle.createScript(`
     exports.main = function () {
       ${sourceCode};
-      if (typeof some_variable === 'undefined') {
-        exit({ undef: true });
-      } else {
-        exit({ value: some_variable });
-      }
+      const __static_analysis = ${JSON.stringify(staticAnalysis)};
+      ${fs.readFileSync("./exercises/avg_with_reduce.js", "utf-8")};
     };
   `);
 
-  script.on("exit", function(err, output) {
+  script.on("exit", (err, output) => {
+    console.log("complete run", err ? err.message : 'no error', output)
     res.json({
-      err,
-      output,
+      err: err ? err.message : undefined,
+      passed_tests: !err,
       ast,
-      staticAnalysis: performStaticAnalysis(ast),
+      staticAnalysis,
     })
   });
 
